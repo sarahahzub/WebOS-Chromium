@@ -24,7 +24,7 @@ body:
     attributes:
       label: WebOS Chromium version
       description: Shown in Homebrew Channel, or in the 3-dot menu → About Chromium
-      placeholder: 0.0.42
+      placeholder: 0.0.43
     validations:
       required: true
   - type: dropdown
