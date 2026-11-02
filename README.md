@@ -15,6 +15,7 @@ GPU rendering and hardware video decoding. No root needed.<br>
 | **Truly native** | Built for the TV's own ARM processor. It talks straight to the TV's own display server, GPU driver and video decoder. No emulation, no translation layer, no bundled display server, no chroot or container. |
 | **GPU rendering** | Pages and the browser UI are drawn on the TV's GPU (PowerVR, OpenGL ES) through the TV's own driver. |
 | **Hardware video** | Every `<video>` on every site goes to the TV's hardware decoder (LG NDL DirectMedia), up to 1080p60. YouTube AV1 1080p60 plays with **0 dropped frames**. |
+| **Sharp 1080p** | The browser draws at the TV's full 1920x1080 resolution with a 1.5x interface, so text stays big enough for the sofa and sharp (since 0.0.48). |
 | **Full Chrome UI** | Tabs, address bar, 3-dot menu, bookmarks, history, downloads, settings, and extensions from the Chrome Web Store. |
 | **Light** | ~138 MB RAM when idle, with no extra CPU load. Fast launch with a splash screen. |
 | **No root** | Installs as a normal Developer Mode app, or through Homebrew Channel. |
@@ -46,7 +47,7 @@ for quick settings, or open **All settings** for the full page. Everything can b
 | Lite mode | Off, On | Lighter pages: no animations, images and frames load only when you scroll to them, and muted videos don't start by themselves. |
 | Website version | TV (default), Desktop, Custom | TV asks every site for its TV layout (YouTube opens its TV interface, made for the remote). Desktop asks for normal desktop pages. Custom sends a user agent you type in. |
 | Per-site version | TV / desktop for the current site | Keeps a site on its desktop version while everything else uses the TV version. |
-| Maximum video resolution | Auto, 1080p, 720p, 480p, 360p | Limits the video quality on **every site**, not only YouTube. Lower uses less memory and data. |
+| Maximum video resolution | Auto, 4K, 1080p, 720p, 480p, 360p | Limits the video quality on **every site**, not only YouTube. Lower uses less memory and data. **4K** is opt-in and may stutter or lag, especially when a video starts; go back to Auto or 1080p if it does. |
 | Maximum frame rate | Auto, 60 fps, 30 fps | Skips streams above the chosen frame rate. |
 | Video codec | Auto, H.264 only | H.264 only is the most compatible choice if a video won't play. |
 | Per-site video limits | On / off for the current site | Turns the video limits off on a site where you want the site's own choice. |

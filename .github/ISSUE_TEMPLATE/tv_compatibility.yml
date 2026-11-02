@@ -20,7 +20,7 @@ body:
     id: app_version
     attributes:
       label: WebOS Chromium version
-      placeholder: 0.0.43
+      placeholder: 0.0.48
     validations:
       required: true
   - type: dropdown
