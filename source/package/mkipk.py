@@ -142,6 +142,7 @@ def main():
     if a.start:
         files.update(tree(a.start, "start"))
     files.update(tree(os.path.join(HERE, "ext"), "ext"))  # built-in extensions (run.sh --load-extension)
+    files["fonts.conf"] = (open(os.path.join(HERE, "fonts.conf"), "rb").read(), 0o644)  # run.sh FONTCONFIG_FILE
     if a.ui:
         files.update(tree(a.ui, "ui"))
     if a.lib_dir:

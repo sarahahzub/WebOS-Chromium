@@ -28,6 +28,8 @@ chmod 700 "$S/profile" "$S/cache" 2>/dev/null
 export XDG_RUNTIME_DIR=/tmp/xdg EGL_PLATFORM=wayland
 export HOME=$S TMPDIR=$T/tmp XDG_CACHE_HOME=$S/cache XDG_CONFIG_HOME=$S
 export LANG=${LANG:-en_US.UTF-8}
+# Chrome uses the TV's fontconfig, whose rules turn every family into LG Display with full hinting (fonts.conf).
+export FONTCONFIG_FILE=$D/fonts.conf
 # No Google API keys in a Chromium build: "no" hides the "Google API keys are missing" bar (Chromium's documented
 # opt-out), and patch 0059 then sends nothing to accounts.google.com. For trying Google sign-in and sync with your own
 # keys (see the README): $S/google-keys with the three lines GOOGLE_API_KEY=..., GOOGLE_DEFAULT_CLIENT_ID=... and
