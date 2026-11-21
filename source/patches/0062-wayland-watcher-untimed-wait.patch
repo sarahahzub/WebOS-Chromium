@@ -1,0 +1,58 @@
+# why: Patch 0058 made the omnibox 4-5x slower to reach the screen on an LG C1. Its exit-hang fix has the Wayland
+# watcher thread wait for the UI thread's dispatch in 500 ms TimedWait steps. With it,
+# Omnibox.CharTypedToRepaintLatency.PaintToPresent was 81-136 ms against 19-29 ms without 0058 (bisected,
+# interleaved runs). The watcher now waits once, untimed, on the dispatch event and on a shutdown event that
+# StopThread() signals before it joins the thread. The exit still never hangs, and 0058's join stays.
+
+--- a/src/ui/events/platform/wayland/wayland_event_watcher.cc
++++ b/src/ui/events/platform/wayland/wayland_event_watcher.cc
+@@ -13,6 +13,7 @@
+ #include "base/environment.h"
+ #include "base/logging.h"
+ #include "base/memory/ref_counted.h"
++#include "base/no_destructor.h"
+ #include "base/nix/xdg_util.h"
+ #include "base/strings/string_util.h"
+ #include "base/strings/stringprintf.h"
+@@ -30,6 +31,15 @@
+ // chromium-native (patch 0058): set when the (one) watcher is being destroyed.
+ std::atomic<bool> g_cn_watcher_shutting_down{false};
+ 
++// chromium-native (patch 0062): signalled with g_cn_watcher_shutting_down. The
++// watcher thread waits on it and on its dispatch event together, untimed.
++base::WaitableEvent& CnWatcherShutdownEvent() {
++  static base::NoDestructor<base::WaitableEvent> event(
++      base::WaitableEvent::ResetPolicy::MANUAL,
++      base::WaitableEvent::InitialState::NOT_SIGNALED);
++  return *event;
++}
++
+ // Formats the |message| by removing '@' char followed by any digits until the
+ // next char. Also removes new line, tab and carriage-return.
+ void FormatErrorMessage(std::string* message) {
+@@ -154,6 +164,7 @@
+   // chromium-native (patch 0058): let the watcher thread leave a wait for the
+   // UI thread (see WlDisplayDispatchPendingQueue), then join it.
+   g_cn_watcher_shutting_down.store(true);
++  CnWatcherShutdownEvent().Signal();
+   thread_.reset();
+ }
+ 
+@@ -332,11 +343,12 @@
+         },
+         weak_this_, event);
+     ui_thread_task_runner_->PostTask(FROM_HERE, std::move(cb));
+-    while (!event->data.TimedWait(base::Milliseconds(500))) {
+-      if (g_cn_watcher_shutting_down.load()) {
+-        return;
+-      }
+-    }
++    // chromium-native (patch 0062): one untimed wait on both events. The
++    // 500 ms TimedWait loop of patch 0058 made the omnibox's paint-to-present
++    // 4-5x longer on an LG C1 (19-29 -> 81-136 ms). The shutdown event
++    // still lets the thread leave when the watcher stops.
++    base::WaitableEvent* events[] = {&event->data, &CnWatcherShutdownEvent()};
++    base::WaitableEvent::WaitMany(events);
+   } else {
+     WlDisplayDispatchPendingQueueInternal(nullptr);
+   }
