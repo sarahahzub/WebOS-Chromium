@@ -326,7 +326,10 @@ if [ -x "$B/chrome" ]; then
 	LITE_SET=auto
 	LX="$S/profile/Default/Local Extension Settings/$TVT"
 	for f in $(cd "$LX" 2>/dev/null && ls -t -- *.log *.ldb 2>/dev/null); do
-		v=$(grep -a -o -E '"lite":("(auto|on|off)"|true|false)' "$LX/$f" 2>/dev/null | tail -1)
+		# Readable in .ldb tables only with patch 0071 (no compression). A .log keeps writes in order, so its
+		# newest value is the last match. A table sorts the versions of one key newest first.
+		PICK="tail -n 1"; case "$f" in *.ldb) PICK="head -n 1" ;; esac
+		v=$(grep -a -o -E '"lite":("(auto|on|off)"|true|false)' "$LX/$f" 2>/dev/null | $PICK)
 		[ -n "$v" ] || continue
 		case "$v" in *'"on"'|*true) LITE_SET=on ;; *'"off"') LITE_SET=off ;; esac
 		break

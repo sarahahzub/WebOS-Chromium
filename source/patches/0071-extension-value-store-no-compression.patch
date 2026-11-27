@@ -1,0 +1,16 @@
+# why: run.sh reads TV Tools' Lite mode by grepping the extension's chrome.storage LevelDB. A saved value is plain text
+# only while it is in the .log. The next start flushes it into a snappy-compressed .ldb table, where the exact pattern
+# no longer matches, and run.sh silently fell back to Auto: a change held for one start. Extension value stores now
+# write tables without compression, so the JSON stays as written. Every extension's store is affected; they hold
+# settings and lists, so the extra disk use is small.
+diff --git a/src/components/value_store/lazy_leveldb.cc b/src/components/value_store/lazy_leveldb.cc
+--- a/src/components/value_store/lazy_leveldb.cc
++++ b/src/components/value_store/lazy_leveldb.cc
+@@ -64,6 +64,7 @@
+     : db_path_(path) {
+   open_options_.create_if_missing = true;
+   open_options_.paranoid_checks = true;
++  open_options_.compression = leveldb::kNoCompression;
+
+   read_options_.verify_checksums = true;
+
